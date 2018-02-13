@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from EC2 import EC2
@@ -25,7 +24,7 @@ def collect_from_services(services_required):
 
 
 	if results:
-		return pd.concat(results)
+		return pd.concat(results).sort("Creation_date").reset_index(drop=True)
 	else:
 		return None
 

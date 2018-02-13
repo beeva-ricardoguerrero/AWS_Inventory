@@ -9,7 +9,7 @@ class EC2():
 
 	def __init__(self):
 		self.ec2 = boto3.client('ec2')
-		self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
+		self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date', 'Region']
 		# TODO This is temporary, it should come in a base class
 
 		# TODO check if the connection was established
@@ -49,11 +49,12 @@ class EC2():
 			item_info = dict.fromkeys(self.FIELDS)
 
 			item_info['Description'] = item['Instances'][0]['InstanceType']
-			item_info['Creation_date'] = item['Instances'][0]['LaunchTime']
+			item_info['Creation_date'] = str(item['Instances'][0]['LaunchTime']).split(" ")[0]
 			item_info['ID'] = item['Instances'][0]['InstanceId']
 			item_info['Status'] = item['Instances'][0]['State']['Name']
 			item_info['Tag_name'] = item['Instances'][0]['Tags'][0].get('Name', None)
 			item_info['Tag_project'] = item['Instances'][0]['Tags'][0].get('Project', None)
+			item_info['Region'] = item['Instances'][0]['Placement']['AvailabilityZone']
 
 			formatted_list.append(item_info)
 
