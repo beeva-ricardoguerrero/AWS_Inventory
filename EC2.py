@@ -9,7 +9,7 @@ class EC2():
             boto3.setup_default_session(region_name=region)
 
         self.ec2 = boto3.client('ec2')
-        self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date', 'Region']
+        self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
         # TODO This is temporary, it should come in a base class
 
         # TODO check if the connection was established
@@ -50,8 +50,6 @@ class EC2():
                 item_info['Creation_date'] = str(instance['LaunchTime']).split(" ")[0]
                 item_info['ID'] = instance['InstanceId']
                 item_info['Status'] = instance['State']['Name']
-                item_info['Tag_name'] = None
-                item_info['Tag_project'] = None
                 if 'Tags' in instance:
                     for tag in instance['Tags']:
                         if tag['Key'] == 'Name':
