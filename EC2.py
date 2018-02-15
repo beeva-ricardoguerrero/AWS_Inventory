@@ -7,7 +7,10 @@ import pandas as pd
 
 class EC2():
 
-	def __init__(self):
+	def __init__(self,region):
+		if region:
+        	    boto3.setup_default_session(region_name=region)
+		
 		self.ec2 = boto3.client('ec2')
 		self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date', 'Region']
 		# TODO This is temporary, it should come in a base class

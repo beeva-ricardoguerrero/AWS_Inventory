@@ -10,11 +10,12 @@ if __name__ == '__main__':
 
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-o", "--output", required=False, help="Path to the written report (CSV file)")
-	ap.add_argument("--all", required=False, help="Return info about all services listed in variable services (currently only EC2)")
+	ap.add_argument("--region", required=False, help="The region to use. Overrides config/env settings.")
+	#ap.add_argument("--all", required=False, help="Return info about all services listed in variable services (currently only EC2)")
 	#ap.add_argument("-v", "--verbose", required=False, help="Show info on terminal")
 	args = vars(ap.parse_args())
-
-	collected = collect_from_services(services_required)
+	region = args["region"]
+	collected = collect_from_services(services_required,region)
 
 	if collected is not None:
 
@@ -26,4 +27,4 @@ if __name__ == '__main__':
 		print(collected.head())
 
 	else:
-		print("Not info was collected.")
+		print("No info was collected.")
