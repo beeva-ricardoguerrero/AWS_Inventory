@@ -27,6 +27,11 @@ class EC2():
 
             Returns: pandas' Dataframe
         """
+        i = self.collect_instances()
+        v = self.collect_volumes()
+        return pd.concat([i,v])
+
+    def collect_instances(self):
         try:
             response = self.ec2.describe_instances()
         except ClientError as e:
@@ -58,6 +63,39 @@ class EC2():
                             item_info['Tag_project'] = tag['Value']
 
                 formatted_list.append(item_info)
+
+        pruned = pd.DataFrame(formatted_list)
+
+        return pruned
+
+    def collect_volumes(self):
+        try:
+            response = self.ec2.describe_volumes()
+        except ClientError as e:
+            print("Exception in class " + self.__class__.__name__)
+            print(e.message)
+            return None
+
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return None
+
+        # Pruning and formatting
+        formatted_list = []
+
+        for volume in response['Volumes']:
+            item_info = dict.fromkeys(self.FIELDS)
+            item_info['Description'] = str(volume['Size']) + "G"
+            item_info['Creation_date'] = str(volume['CreateTime']).split(" ")[0]
+            item_info['ID'] = volume['VolumeId']
+            item_info['Status'] = volume['State']
+            if 'Tags' in volume:
+                for tag in volume['Tags']:
+                    if tag['Key'] == 'Name':
+                        item_info['Tag_name'] = tag['Value']
+                    if tag['Key'] == 'Project':
+                        item_info['Tag_project'] = tag['Value']
+
+            formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
 
