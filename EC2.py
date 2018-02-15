@@ -43,19 +43,23 @@ class EC2():
 
         print("Processing %d elements." % len(response['Reservations']) )
 
-        for item in response['Reservations']:
+        for reservation in response['Reservations']:
+            for instance in reservation['Instances']:
+                item_info = dict.fromkeys(self.FIELDS)
+                item_info['Description'] = instance['InstanceType']
+                item_info['Creation_date'] = str(instance['LaunchTime']).split(" ")[0]
+                item_info['ID'] = instance['InstanceId']
+                item_info['Status'] = instance['State']['Name']
+                item_info['Tag_name'] = None
+                item_info['Tag_project'] = None
+                if 'Tags' in instance:
+                    for tag in instance['Tags']:
+                        if tag['Key'] == 'Name':
+                            item_info['Tag_name'] = tag['Value']
+                        if tag['Key'] == 'Project':
+                            item_info['Tag_project'] = tag['Value']
 
-            item_info = dict.fromkeys(self.FIELDS)
-            item_info['Description'] = item['Instances'][0]['InstanceType']
-            item_info['Creation_date'] = str(item['Instances'][0]['LaunchTime']).split(" ")[0]
-            item_info['ID'] = item['Instances'][0]['InstanceId']
-            item_info['Status'] = item['Instances'][0]['State']['Name']
-            item_info['Tag_name'] = item['Instances'][0]['Tags'][0].get('Name', None)
-            item_info['Tag_project'] = item['Instances'][0]['Tags'][0].get('Project', None)
-            item_info['Region'] = item['Instances'][0]['Placement']['AvailabilityZone']
-
-            formatted_list.append(item_info)
-
+                formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
 
