@@ -29,7 +29,11 @@ class EC2():
         """
         i = self.collect_instances()
         v = self.collect_volumes()
-        return pd.concat([i,v])
+        r = self.collect_reserved_instances()
+        s = self.collect_snapshots()
+        a = self.collect_addresses()
+        
+        return pd.concat([i,v,r,s,a])
 
     def collect_instances(self):
         try:
@@ -45,8 +49,6 @@ class EC2():
 
         # Pruning and formatting
         formatted_list = []
-
-        print("Processing %d elements." % len(response['Reservations']) )
 
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
@@ -66,7 +68,7 @@ class EC2():
                 formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
-
+        
         return pruned
 
     def collect_volumes(self):
@@ -126,6 +128,99 @@ class EC2():
             item_info['Status'] = spotreq['State']
             if 'Tags' in spotreq:
                 for tag in spotreq['Tags']:
+                    if tag['Key'] == 'Name':
+                        item_info['Tag_name'] = tag['Value']
+                    if tag['Key'] == 'Project':
+                        item_info['Tag_project'] = tag['Value']
+
+            formatted_list.append(item_info)
+
+        pruned = pd.DataFrame(formatted_list)
+
+        return pruned
+
+    def collect_reserved_instances(self):
+        try:
+            response = self.ec2.describe_reserved_instances()
+        except ClientError as e:
+            print("Exception in class " + self.__class__.__name__)
+            print(e.message)
+            return None
+
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return None
+
+        # Pruning and formatting
+        formatted_list = []
+
+        for instance in response['ReservedInstances']:
+            item_info = dict.fromkeys(self.FIELDS)
+            item_info['Resource_Type'] = "reserved instance"
+            item_info['Description'] = instance['InstanceType']
+            item_info['Creation_date'] = str(instance['Start']).split(" ")[0]
+            item_info['ID'] = instance['ReservedInstancesId']
+            item_info['Status'] = instance['State']
+
+            formatted_list.append(item_info)
+
+        pruned = pd.DataFrame(formatted_list)
+
+        return pruned
+
+    def collect_snapshots(self):
+        try:
+            response = self.ec2.describe_snapshots()
+        except ClientError as e:
+            print("Exception in class " + self.__class__.__name__)
+            print(e.message)
+            return None
+
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return None
+
+        # Pruning and formatting
+        formatted_list = []
+
+        for snapshot in response['Snapshots']:
+            item_info = dict.fromkeys(self.FIELDS)
+            item_info['Resource_Type'] = "snapshot"
+            item_info['Description'] = str(snapshot['VolumeSize']) + "G"
+            item_info['Creation_date'] = str(snapshot['StartTime']).split(" ")[0]
+            item_info['ID'] = snapshot['SnapshotId']
+            item_info['Status'] = snapshot['State']
+            if 'Tags' in snapshot:
+                for tag in snapshot['Tags']:
+                    if tag['Key'] == 'Name':
+                        item_info['Tag_name'] = tag['Value']
+                    if tag['Key'] == 'Project':
+                        item_info['Tag_project'] = tag['Value']
+
+            formatted_list.append(item_info)
+
+        pruned = pd.DataFrame(formatted_list)
+
+        return pruned
+
+    def collect_addresses(self):
+        try:
+            response = self.ec2.describe_addresses()
+        except ClientError as e:
+            print("Exception in class " + self.__class__.__name__)
+            print(e.message)
+            return None
+
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return None
+
+        # Pruning and formatting
+        formatted_list = []
+
+        for addr in response['Addresses']:
+            item_info = dict.fromkeys(self.FIELDS)
+            item_info['Resource_Type'] = "address"
+            item_info['ID'] = addr['PublicIp']
+            if 'Tags' in addr:
+                for tag in addr['Tags']:
                     if tag['Key'] == 'Name':
                         item_info['Tag_name'] = tag['Value']
                     if tag['Key'] == 'Project':
