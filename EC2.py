@@ -9,7 +9,7 @@ class EC2():
             boto3.setup_default_session(region_name=region)
 
         self.ec2 = boto3.client('ec2')
-        self.FIELDS = ['Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
+        self.FIELDS = ['Resource_Type', 'Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
         # TODO This is temporary, it should come in a base class
 
         # TODO check if the connection was established
@@ -51,6 +51,7 @@ class EC2():
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
                 item_info = dict.fromkeys(self.FIELDS)
+                item_info['Resource_Type'] = "instance"
                 item_info['Description'] = instance['InstanceType']
                 item_info['Creation_date'] = str(instance['LaunchTime']).split(" ")[0]
                 item_info['ID'] = instance['InstanceId']
@@ -84,12 +85,47 @@ class EC2():
 
         for volume in response['Volumes']:
             item_info = dict.fromkeys(self.FIELDS)
+            item_info['Resource_Type'] = "ebs volume"
             item_info['Description'] = str(volume['Size']) + "G"
             item_info['Creation_date'] = str(volume['CreateTime']).split(" ")[0]
             item_info['ID'] = volume['VolumeId']
             item_info['Status'] = volume['State']
             if 'Tags' in volume:
                 for tag in volume['Tags']:
+                    if tag['Key'] == 'Name':
+                        item_info['Tag_name'] = tag['Value']
+                    if tag['Key'] == 'Project':
+                        item_info['Tag_project'] = tag['Value']
+
+            formatted_list.append(item_info)
+
+        pruned = pd.DataFrame(formatted_list)
+
+        return pruned
+
+    def collect_spot_requests(self):
+        try:
+            response = self.ec2.describe_spot_instance_requests()
+        except ClientError as e:
+            print("Exception in class " + self.__class__.__name__)
+            print(e.message)
+            return None
+
+        if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return None
+
+        # Pruning and formatting
+        formatted_list = []
+
+        for spotreq in response['SpotInstanceRequests']:
+            item_info = dict.fromkeys(self.FIELDS)
+            item_info['Resource_Type'] = "spot instance request"
+            item_info['Description'] = spotreq['LaunchSpecification']['InstanceType']
+            item_info['Creation_date'] = str(spotreq['CreateTime']).split(" ")[0]
+            item_info['ID'] = spotreq['SpotInstanceRequestId']
+            item_info['Status'] = spotreq['State']
+            if 'Tags' in spotreq:
+                for tag in spotreq['Tags']:
                     if tag['Key'] == 'Name':
                         item_info['Tag_name'] = tag['Value']
                     if tag['Key'] == 'Project':
