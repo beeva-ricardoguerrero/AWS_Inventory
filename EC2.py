@@ -27,13 +27,14 @@ class EC2():
 
             Returns: pandas' Dataframe
         """
-        i = self.collect_instances()
-        v = self.collect_volumes()
-        r = self.collect_reserved_instances()
-        s = self.collect_snapshots()
-        a = self.collect_addresses()
+        instances = self.collect_instances()
+        vols = self.collect_volumes()
+        reserved = self.collect_reserved_instances()
+        snaps = self.collect_snapshots()
+        addrs = self.collect_addresses()
         
-        return pd.concat([i,v,r,s,a])
+        ret = pd.concat([instances,vols,reserved,snaps,addrs])
+        return ret
 
     def collect_instances(self):
         try:
