@@ -1,30 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
 import pandas as pd
+from AWS import AWS
 
-class EC2():
-
-    def _aws_exception_handling(self,func):
-        def __aws_exception_handling(*args, **kwargs):
-            try:
-                response = func()
-                return response
-            except ClientError as e:
-                print("Exception in class " + self.__class__.__name__)
-                print(e.message)
-                return None
-        return __aws_exception_handling
-
+class EC2(AWS):
 
     def __init__(self,region=None):
-        boto3.setup_default_session(region_name=region)
-        self.region = region
+        AWS.__init__(self, region=region)
         self.ec2 = boto3.client('ec2')
-        self.FIELDS = ['Resource_Type', 'Description', 'ID', 'Status', 'Name', 'Project', 'Creation_date']
-        # TODO This is temporary, it should come in a base class
-
-        # TODO check if the connection was established
-
 
     def collect(self, services=[]):
         """
