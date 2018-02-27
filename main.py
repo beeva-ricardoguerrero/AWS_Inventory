@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 from collect import collect_from_services
 
@@ -6,7 +7,7 @@ from collect import collect_from_services
 if __name__ == '__main__':
 
     # Services identified as potentially costly
-    services_required = ['ec2', 'ec2_ebs']
+    services_required = ['ec2', 's3']
 
     ap = argparse.ArgumentParser()
     ap.add_argument("-o", "--output", required=False, help="Path to the written report (CSV file)")
