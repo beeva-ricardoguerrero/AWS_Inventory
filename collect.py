@@ -20,7 +20,6 @@ def collect_from_services(services_required,region):
             results.append(resources)
 
     if results:
-        #return pd.concat(results).sort("Creation_date").reset_index(drop=True)
         return pd.concat(results)
     else:
         return None
