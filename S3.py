@@ -19,7 +19,7 @@ class S3():
             boto3.setup_default_session(region_name=region)
 
         self.s3 = boto3.client('s3')
-        self.FIELDS = ['Resource_Type', 'Name', 'Creation_date']
+        self.FIELDS = ['Resource_Type', 'Description', 'ID', 'Status', 'Name', 'Project', 'Creation_date']
 
     def collect(self):
         # TODO public/private buckets
@@ -34,8 +34,8 @@ class S3():
             item_info = dict.fromkeys(self.FIELDS)
             item_info['Resource_Type'] = "S3 Bucket"
             item_info['Name'] = bucket['Name']
-            item_info['Creation_date'] = bucket['CreationDate']
-
+            item_info['Creation_date'] = str(bucket['CreationDate']).split(" ")[0]
+            
             formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
