@@ -5,14 +5,14 @@ import pandas as pd
 class EC2():
 
     def _aws_exception_handling(func):
-		def __aws_exception_handling(*args, **kwargs):
-			try:
-	            response = func()
-	            return response
-	        except ClientError as e:
-	            print("Exception in class " + self.__class__.__name__)
-	            print(e.message)
-	            return None
+        def __aws_exception_handling(*args, **kwargs):
+            try:
+                response = func()
+                return response
+            except ClientError as e:
+                print("Exception in class " + self.__class__.__name__)
+                print(e.message)
+                return None
 
 	    return __aws_exception_handling
 
