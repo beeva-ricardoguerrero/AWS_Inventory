@@ -5,21 +5,21 @@ import pandas as pd
 class EC2():
 
     def _aws_exception_handling(func):
-		def __aws_exception_handling(*args, **kwargs):
-			try:
-	            response = func()
-	            return response
-	        except ClientError as e:
-	            print("Exception in class " + self.__class__.__name__)
-	            print(e.message)
-	            return None
+        def __aws_exception_handling(*args, **kwargs):
+            try:
+                response = func(*args, **kwargs)
+                return response
+            except ClientError as e:
+                print("Exception in class " + self.__class__.__name__)
+                print(e.message)
+                return None
 
-	    return __aws_exception_handling
+        return __aws_exception_handling
 
 
     def __init__(self,region=None):
         if region:
-        	_aws_exception_handling(boto3.setup_default_session)(region_name=region)
+            self._aws_exception_handling(boto3.setup_default_session)(region_name=region)
 
         self.ec2 = boto3.client('ec2')
         self.FIELDS = ['Resource_Type', 'Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
@@ -52,7 +52,7 @@ class EC2():
 
     def collect_instances(self):
 
-    	response = _aws_exception_handling(self.ec2.describe_instances)()
+        response = self._aws_exception_handling(self.ec2.describe_instances)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -83,7 +83,7 @@ class EC2():
 
     def collect_volumes(self):
 
-    	response = _aws_exception_handling(self.ec2.describe_volumes)()
+        response = self._aws_exception_handling(self.ec2.describe_volumes)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -113,7 +113,7 @@ class EC2():
 
     def collect_spot_requests(self):
 
-        response = _aws_exception_handling(self.ec2.describe_spot_instance_requests)()
+        response = self._aws_exception_handling(self.ec2.describe_spot_instance_requests)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -144,7 +144,7 @@ class EC2():
 
     def collect_reserved_instances(self):
 
-    	response = _aws_exception_handling(self.ec2.describe_reserved_instances)()
+        response = self._aws_exception_handling(self.ec2.describe_reserved_instances)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -169,7 +169,7 @@ class EC2():
 
     def collect_snapshots(self):
 
-    	response = _aws_exception_handling(self.ec2.describe_snapshots)()
+        response = self._aws_exception_handling(self.ec2.describe_snapshots)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -200,7 +200,7 @@ class EC2():
 
     def collect_addresses(self):
 
-    	response = _aws_exception_handling(self.ec2.describe_addresses)()
+        response = self._aws_exception_handling(self.ec2.describe_addresses)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
