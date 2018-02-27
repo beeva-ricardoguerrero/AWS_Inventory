@@ -11,7 +11,7 @@ if __name__ == '__main__':
     services_required = ['ec2', 's3']
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("-c","--csv", required=False, help="CSV output")
+    ap.add_argument("-o","--output", required=False, choices=['tab','csv'], help="output type", default='tab')
     ap.add_argument("--region", required=False, help="The region to use. Overrides config/env settings.")
     #ap.add_argument("--all", required=False, help="Return info about all services listed in variable services (currently only EC2)")
     #ap.add_argument("-v", "--verbose", required=False, help="Show info on terminal")
@@ -23,8 +23,9 @@ if __name__ == '__main__':
         print("no info was collected")
         exit(0)
 
-    if args["csv"]:
-        print(collected.to_csv())
-    else:
+    if args["output"] == "tab":
         print tabulate(collected, showindex='never', headers='keys', tablefmt='psql')
+    else:
+        print(collected.to_csv())
+
    
