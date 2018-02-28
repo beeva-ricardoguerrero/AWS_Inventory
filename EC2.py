@@ -26,14 +26,14 @@ class EC2(AWS):
         reserved = self.collect_reserved_instances()
         snaps = self.collect_snapshots()
         addrs = self.collect_addresses()
-        
+
         ret = pd.concat([instances,vols,reserved,snaps,addrs])
         return ret
 
 
     def collect_instances(self):
 
-    	response = self._aws_exception_handling(self.ec2.describe_instances)()
+        response = self._aws_exception_handling(self.ec2.describe_instances)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -59,12 +59,12 @@ class EC2(AWS):
                 formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
-        
+
         return pruned
 
     def collect_volumes(self):
 
-    	response = self._aws_exception_handling(self.ec2.describe_volumes)()
+        response = self._aws_exception_handling(self.ec2.describe_volumes)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -125,7 +125,7 @@ class EC2(AWS):
 
     def collect_reserved_instances(self):
 
-    	response = self._aws_exception_handling(self.ec2.describe_reserved_instances)()
+        response = self._aws_exception_handling(self.ec2.describe_reserved_instances)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -150,7 +150,7 @@ class EC2(AWS):
 
     def collect_snapshots(self):
 
-    	response = self._aws_exception_handling(self.ec2.describe_snapshots)()
+        response = self._aws_exception_handling(self.ec2.describe_snapshots)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
@@ -181,7 +181,7 @@ class EC2(AWS):
 
     def collect_addresses(self):
 
-    	response = self._aws_exception_handling(self.ec2.describe_addresses)()
+        response = self._aws_exception_handling(self.ec2.describe_addresses)()
 
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return None
