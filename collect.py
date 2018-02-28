@@ -13,14 +13,13 @@ def collect_from_services(services_required,region):
             results.append(resources)
 
     if 's3' in services_required:
-        s3 = S3()
+        s3 = S3(region)
         resources = s3.collect()
 		
-        if resources:
+        if len(resources):
             results.append(resources)
 
     if results:
-        #return pd.concat(results).sort("Creation_date").reset_index(drop=True)
         return pd.concat(results)
     else:
         return None

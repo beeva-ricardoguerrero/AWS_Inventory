@@ -1,32 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
 import pandas as pd
+from AWS import AWS
 
-class EC2():
-
-    def _aws_exception_handling(func):
-        def __aws_exception_handling(*args, **kwargs):
-            try:
-                response = func(*args, **kwargs)
-                return response
-            except ClientError as e:
-                print("Exception in class " + self.__class__.__name__)
-                print(e.message)
-                return None
-
-        return __aws_exception_handling
-
+class EC2(AWS):
 
     def __init__(self,region=None):
-        if region:
-            self._aws_exception_handling(boto3.setup_default_session)(region_name=region)
-
+        AWS.__init__(self, region=region)
         self.ec2 = boto3.client('ec2')
-        self.FIELDS = ['Resource_Type', 'Description', 'ID', 'Status', 'Tag_name', 'Tag_project', 'Creation_date']
-        # TODO This is temporary, it should come in a base class
-
-        # TODO check if the connection was established
-
 
     def collect(self, services=[]):
         """
@@ -45,7 +26,7 @@ class EC2():
         reserved = self.collect_reserved_instances()
         snaps = self.collect_snapshots()
         addrs = self.collect_addresses()
-        
+
         ret = pd.concat([instances,vols,reserved,snaps,addrs])
         return ret
 
@@ -71,14 +52,14 @@ class EC2():
                 if 'Tags' in instance:
                     for tag in instance['Tags']:
                         if tag['Key'] == 'Name':
-                            item_info['Tag_name'] = tag['Value']
+                            item_info['Name'] = tag['Value']
                         if tag['Key'] == 'Project':
-                            item_info['Tag_project'] = tag['Value']
+                            item_info['Project'] = tag['Value']
 
                 formatted_list.append(item_info)
 
         pruned = pd.DataFrame(formatted_list)
-        
+
         return pruned
 
     def collect_volumes(self):
@@ -101,9 +82,9 @@ class EC2():
             if 'Tags' in volume:
                 for tag in volume['Tags']:
                     if tag['Key'] == 'Name':
-                        item_info['Tag_name'] = tag['Value']
+                        item_info['Name'] = tag['Value']
                     if tag['Key'] == 'Project':
-                        item_info['Tag_project'] = tag['Value']
+                        item_info['Project'] = tag['Value']
 
             formatted_list.append(item_info)
 
@@ -131,9 +112,9 @@ class EC2():
             if 'Tags' in spotreq:
                 for tag in spotreq['Tags']:
                     if tag['Key'] == 'Name':
-                        item_info['Tag_name'] = tag['Value']
+                        item_info['Name'] = tag['Value']
                     if tag['Key'] == 'Project':
-                        item_info['Tag_project'] = tag['Value']
+                        item_info['Project'] = tag['Value']
 
             formatted_list.append(item_info)
 
@@ -187,9 +168,9 @@ class EC2():
             if 'Tags' in snapshot:
                 for tag in snapshot['Tags']:
                     if tag['Key'] == 'Name':
-                        item_info['Tag_name'] = tag['Value']
+                        item_info['Name'] = tag['Value']
                     if tag['Key'] == 'Project':
-                        item_info['Tag_project'] = tag['Value']
+                        item_info['Project'] = tag['Value']
 
             formatted_list.append(item_info)
 
@@ -215,9 +196,9 @@ class EC2():
             if 'Tags' in addr:
                 for tag in addr['Tags']:
                     if tag['Key'] == 'Name':
-                        item_info['Tag_name'] = tag['Value']
+                        item_info['Name'] = tag['Value']
                     if tag['Key'] == 'Project':
-                        item_info['Tag_project'] = tag['Value']
+                        item_info['Project'] = tag['Value']
 
             formatted_list.append(item_info)
 
