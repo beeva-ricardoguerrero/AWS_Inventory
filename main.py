@@ -26,6 +26,6 @@ if __name__ == '__main__':
     if args["output"] == "tab":
         print tabulate(collected, showindex='never', headers='keys', tablefmt='psql')
     else:
-        print(collected.to_csv())
+        print(collected.to_csv(encoding='utf-8'))
 
    
